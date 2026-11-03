@@ -1,0 +1,21 @@
+name: Chequear stock
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash check.sh
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      - name: Guardar estado
+        run: |
+          git config user.name "stock-bot"; git config user.email "bot@users.noreply.github.com"
+          git add state.txt
+          git diff --cached --quiet || (git commit -m "estado" && git push)
